@@ -1,48 +1,211 @@
 <!DOCTYPE html>
-<html lang='es-ES'>
+<html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>🆕​ CCH IT Spain Department Tool 🆕​</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.16.9/xlsx.full.min.js"></script>
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #0a0a1a;
+            color: #e0e0ff;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+        }
+        .container {
+            background: rgba(20, 20, 40, 0.8);
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 0 20px rgba(0, 200, 255, 0.3);
+            max-width: 900px;
+            width: 100%;
+            animation: pulse 3s infinite;
+        }
+        h1, h2 {
+            text-align: center;
+            color: #0071a3;
+            margin-bottom: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+        h3 {
+            text-align: center;
+            color: #f9b112;
+            margin-bottom: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+        .upload-area {
+            border: 2px dashed #f9b112;
+            border-radius: 10px;
+            padding: 2rem;
+            text-align: center;
+            margin-bottom: 2rem;
+            transition: all 0.3s ease;
+        }
+        .upload-area:hover {
+            background: rgba(249, 177, 18, 0.1);
+        }
+        .result-section {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+            border-radius: 5px;
+        }
+        .result-section h4 {
+            color: #ff00ff;
+            margin-top: 0;
+        }
+        .copy-btn {
+            background: #0071a3;
+            color: #fff;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 0.5rem;
+        }
+        .copy-btn:hover {
+            background: #00cccc;
+        }
+        .step-selector {
+            margin: 1rem 0;
+            text-align: center;
+        }
+        .step-selector select {
+            background: #1a1a3a;
+            color: #0071a3;
+            border: 1px solid #0071a3;
+            padding: 0.5rem;
+            border-radius: 5px;
+        }
+        .footer {
+            text-align: center;
+            padding: 20px;
+            background-color: rgba(20, 20, 40, 0.8);
+            color: #00ffff;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            font-size: 0.9rem;
+            box-shadow: 0 -5px 10px rgba(0, 0, 0, 0.2);
+        }
+        @keyframes pulse {
+            0% { box-shadow: 0 0 10px rgba(0, 255, 255, 0.5); }
+            50% { box-shadow: 0 0 20px rgba(0, 255, 255, 0.8); }
+            100% { box-shadow: 0 0 10px rgba(0, 255, 255, 0.5); }
+        }
+    </style>
 </head>
 <body>
     <div class="container">
         <center><img src="{{ url_for('static', filename='img/logoCCH.png') }}" alt="CCH IT Department" width="200" height="200"></center>
         <h1>🛳️​CCH IT Spain Department Tool🛳️​​</h1>
         <h3>Advanced New Starters File Analyzer</h3>
-        
-        <div class="mode-selector">
-            <label for="modeSelector">✅​ Select Step:</label>
-            <select id="modeSelector">
+
+        {% if not data %}
+        <div class="upload-area">
+            <form action="/" method="POST" enctype="multipart/form-data">
+                <input type="file" name="file" accept=".xlsx" required>
+                <button type="submit" class="copy-btn">Upload and Process</button>
+            </form>
+        </div>
+        {% else %}
+        <div class="step-selector">
+            <select id="stepSelector" onchange="showStep()">
                 <option value="step2">Step 2 - TTG/B2E</option>
                 <option value="step3">Step 3 - Genesys</option>
+                <option value="step4">Step 4 - Template</option>
             </select>
         </div>
-        
-        <div class="upload-area">
-            <input type="file" id="fileInput" accept=".xlsx" />
-            <label for="fileInput">Upload Hiring and Credentials File</label>
+
+        <div id="step2Content" class="step-content">
+            {% for item in data %}
+            <div class="result-section">
+                <h4>{{ item.name }} {{ item.surname }}</h4>
+                {% if item.step2.name %}
+                <div>
+                    <strong>Name:</strong> {{ item.step2.name }}
+                    <button class="copy-btn" onclick="copyToClipboard('{{ item.step2.name }}')">Copy</button>
+                </div>
+                <div>
+                    <strong>Users:</strong> {{ item.step2.users }}
+                    <button class="copy-btn" onclick="copyToClipboard('{{ item.step2.users }}')">Copy</button>
+                </div>
+                {% endif %}
+                <div>
+                    <strong>Groups:</strong> {{ item.step2.groups }}
+                    <button class="copy-btn" onclick="copyToClipboard('{{ item.step2.groups }}')">Copy</button>
+                </div>
+            </div>
+            {% endfor %}
         </div>
-        
-        <div class="neon-line"></div>
-        
-        <div id="rowSelection" style="display:none;">
-            <h2>Select a Row:</h2>
-            <select id="rowSelector">
-                <option value="">Choose a row</option>
-            </select>
+
+        <div id="step3Content" class="step-content" style="display: none;">
+            {% for item in data %}
+            <div class="result-section">
+                <h4>{{ item.name }} {{ item.surname }}</h4>
+                <div>
+                    <strong>Division:</strong> {{ item.step3.division }}
+                    <button class="copy-btn" onclick="copyToClipboard('{{ item.step3.division }}')">Copy</button>
+                </div>
+                <div>
+                    <strong>Department:</strong> {{ item.step3.department }}
+                    <button class="copy-btn" onclick="copyToClipboard('{{ item.step3.department }}')">Copy</button>
+                </div>
+                <div>
+                    <strong>Colas:</strong> {{ item.step3.colas }}
+                    <button class="copy-btn" onclick="copyToClipboard('{{ item.step3.colas }}')">Copy</button>
+                </div>
+                <div>
+                    <strong>Skills:</strong> {{ item.step3.skills }}
+                    <button class="copy-btn" onclick="copyToClipboard('{{ item.step3.skills }}')">Copy</button>
+                </div>
+            </div>
+            {% endfor %}
         </div>
-        
-        <div id="resultArea">
-            ⬇️​​ Results will appear here... ⬇️​
+
+        <div id="step4Content" class="step-content" style="display: none;">
+            <form action="/process_step4" method="POST">
+                {% for item in data %}
+                <div class="result-section">
+                    <input type="checkbox" name="rows" value="{{ item.id }}">
+                    <strong>{{ item.name }} {{ item.surname }}</strong>
+                </div>
+                {% endfor %}
+                <button type="submit" class="copy-btn">Process Selected Rows</button>
+            </form>
         </div>
+        {% endif %}
     </div>
 
-    <footer class="footer">
-        Developed by Jeremy López Ⓒ <span id="currentYear"></span>
-    </footer>
+    <script>
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                // Visual feedback
+                const btn = event.target;
+                btn.style.backgroundColor = '#00ff00';
+                setTimeout(() => {
+                    btn.style.backgroundColor = '';
+                }, 1000);
+            });
+        }
 
-    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+        function showStep() {
+            const step = document.getElementById('stepSelector').value;
+            document.getElementById('step2Content').style.display = step === 'step2' ? 'block' : 'none';
+            document.getElementById('step3Content').style.display = step === 'step3' ? 'block' : 'none';
+            document.getElementById('step4Content').style.display = step === 'step4' ? 'block' : 'none';
+        }
+    </script>
+
+    <footer class="footer">
+        Developed by Jeremy López Ⓒ <script>document.write(new Date().getUTCFullYear());</script>
+    </footer>
 </body>
 </html>
