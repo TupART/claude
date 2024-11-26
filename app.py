@@ -266,3 +266,4 @@ def main():
     print(f"Upload directory: {os.path.abspath(app.config['UPLOAD_FOLDER'])}")
 
 if __name__ == '__main__':
+    app.run(debug=True)
